@@ -3,11 +3,11 @@
 #
 manhattan<-function(x,y,Goal_x,Goal_y){
   h_value = abs(Goal_x-x)+abs(Goal_y-y)
-  return(h_value * 2)
+  return(h_value)
 }
 
 
-# Find closest target (X,Y)
+# Find closest target and returns a list of the integer coordinates as (x,y)
 #
 # 
 findDestination<-function(car, packages){
@@ -31,24 +31,21 @@ findDestination<-function(car, packages){
   return(list(Gx,Gy))
 }
 
-
-# Performs the modified A*-search 
-#
-#
-astar=function(roads, packages, x, y, Gx, Gy){ 
-  
-  return(nextMove)
-}
-
-#
-#
+# creates a node
+# x = x coordinate
+# y = y coordinate
+# h = calculated heuristic value
+# g = traffic situation (turn cost)
 #
 getNode<-function(x,y,h,g,firstMove){
   return(node=list("x"=x,"y"=y,"h"=h,"g"=g,"firstMove"=firstMove))
 }
 
-# Find direction
-# (ax,ay,bx, by)
+# Find car's nextMove. (ax,ay) - current node's x and y,  (ax,ay) - neighbour's node's x and y, returns a direction eg. - 4(left)
+# ax - current node's x
+# ay - current node's x
+# bx - neighbour node's x
+# by - neighbour node's x
 #
 direction = function(ax,ay,bx,by){
   if(ax == bx && ay < by){
@@ -65,8 +62,10 @@ direction = function(ax,ay,bx,by){
   return (direction)
 }
 
-# Find neighbours 
-#
+# Find neighbours - returns a list of the closest nodes given a currentNode = curNode
+# curNode = node which neighbours are to be expanded
+# Gx = destination x-coordinate
+# Gy = destination y-coordinate
 #
 findNeighbours=function(roads, packages, curNode, Gx, Gy){ 
   x = curNode$x
@@ -95,7 +94,7 @@ findNeighbours=function(roads, packages, curNode, Gx, Gy){
   return(ways)
 }
 
-#
+# Returns the minimum node, aka. next node to be expanded based on G and H
 #
 #
 minimum = function (frontier){
@@ -109,8 +108,9 @@ minimum = function (frontier){
   return (result_index)
 }
 
-#
-#
+# Add the expanded nodes to the frontier if they are 'shorter' than the current occurance OR if it doesnt exist
+# NodeList = frontier
+# newNode = newly expanded nodes
 #
 addUniqueList<-function(NodeList, newNodes){
   for(i in 1:length(newNodes)){
@@ -119,6 +119,9 @@ addUniqueList<-function(NodeList, newNodes){
   return(NodeList)
 }
 
+# Subfunction to addUniqueList
+#
+#
 addUnique<-function(NodeList, newNode){
   newNode=data.frame(newNode)
   for(i in 1:length(NodeList)){
@@ -129,16 +132,15 @@ addUnique<-function(NodeList, newNode){
   }
   return(c(NodeList,list(newNode)))  
 }
+
 # Running the DM 
 #
 #
 astarDM=function(roads,car,packages){ 
-  
   target_list = findDestination(car, packages)
   Gx = target_list[[1]]
   Gy = target_list[[2]]
-  
-  
+    
   node = getNode(car$x,car$y,manhattan(car$x,car$y,Gx,Gy), 0, 0)
   
   frontier = findNeighbours(roads, packages, node, Gx, Gy)
@@ -148,7 +150,7 @@ astarDM=function(roads,car,packages){
     frontier[[i]]$firstMove = direction(car$x,car$y,target$x,target$y)
   
   }
-    repeat{
+  repeat{
       index = minimum(frontier)
       current = frontier[[index]]
       frontier = c(frontier, findNeighbours(roads, packages, current, Gx, Gy)) #eventuella dubbetter TODO
@@ -157,15 +159,15 @@ astarDM=function(roads,car,packages){
       if(current$x == Gx && current$y == Gy){
         break
       }
-    }
+  }
     car$nextMove = current$firstMove
     frontier = NULL
     return(car)
 }  
 
 runMe=function(){
-  for(i in 1:10){
-    runDeliveryMan(astarDM,10,2000,T,0,5)
+  for(i in 1:50){
+    runDeliveryMan(astarDM,10,2000,F,0,5)
   }
 }
 

@@ -167,4 +167,10 @@
     return(getNext(Node$x,Node$y,Gx,Gy,roads,Node))
   }
   
-  runDeliveryMan(astarDM)
+  runMe=function(){
+    for(i in 1:50){
+      runDeliveryMan(astarDM,10,2000,T,0,5)
+    }
+  }
+  
+  runMe()
